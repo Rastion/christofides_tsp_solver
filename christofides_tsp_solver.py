@@ -1,5 +1,7 @@
 from qubots.base_optimizer import BaseOptimizer
 import networkx as nx
+import time
+
 
 class ChristofidesTSPSolver(BaseOptimizer):
     """
@@ -13,11 +15,18 @@ class ChristofidesTSPSolver(BaseOptimizer):
       4. Combine the MST and matching to form an Eulerian multigraph.
       5. Find an Eulerian circuit and shortcut it to form a Hamiltonian circuit (TSP tour).
     """
-    def __init__(self):
-        # No tunable parameters in this simple implementation.
-        pass
+    def __init__(self, time_limit=300):
+        """
+        :param time_limit: Maximum allowed time for the optimization in seconds.
+        """
+        self.time_limit = time_limit
 
     def optimize(self, problem, initial_solution=None, **kwargs):
+        start_time = time.time()
+        
+        # Allow overriding the time limit via kwargs.
+        time_limit = kwargs.get('time_limit', self.time_limit)
+
         n = problem.nb_cities
         dist_matrix = problem.dist_matrix
 
@@ -29,12 +38,24 @@ class ChristofidesTSPSolver(BaseOptimizer):
         # Step 1: Compute the Minimum Spanning Tree (MST) of the graph.
         T = nx.minimum_spanning_tree(G, weight='weight')
 
+        # Check elapsed time.
+        if time.time() - start_time > time_limit:
+            return problem.random_solution(), float('inf')
+
         # Step 2: Identify all vertices with odd degree in the MST.
         odd_degree_nodes = [node for node in T.nodes() if T.degree(node) % 2 == 1]
+
+        # Check elapsed time.
+        if time.time() - start_time > time_limit:
+            return problem.random_solution(), float('inf')
 
         # Step 3: Compute a minimum weight perfect matching for the subgraph induced by odd-degree nodes.
         subgraph = G.subgraph(odd_degree_nodes)
         matching = nx.algorithms.matching.min_weight_matching(subgraph, weight='weight')
+
+        # Check elapsed time.
+        if time.time() - start_time > time_limit:
+            return problem.random_solution(), float('inf')
 
         # Step 4: Combine MST and matching edges into a multigraph.
         multigraph = nx.MultiGraph()
@@ -42,6 +63,10 @@ class ChristofidesTSPSolver(BaseOptimizer):
         multigraph.add_edges_from(T.edges(data=True))
         for u, v in matching:
             multigraph.add_edge(u, v, weight=G[u][v]['weight'])
+
+        # Check elapsed time.
+        if time.time() - start_time > time_limit:
+            return problem.random_solution(), float('inf')
 
         # Step 5: Find an Eulerian circuit in the multigraph (starting from node 0).
         circuit_edges = list(nx.eulerian_circuit(multigraph, source=0))

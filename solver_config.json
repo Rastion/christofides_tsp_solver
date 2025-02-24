@@ -1,6 +1,6 @@
 {
     "entry_point": "christofides_tsp_solver:ChristofidesTSPSolver",
-    "default_params": {},
+    "default_params": {"time_limit": 300},
     "optimizer_type": "Christofides TSP Solver",
     "description": "Approximate TSP solver implementing the Christofides algorithm. This solver computes a minimum spanning tree, finds a minimum weight perfect matching for odd-degree nodes, and constructs an Eulerian circuit which is then shortcut to produce a TSP tour with a worst-case guarantee of 3/2 for metric TSP.",
     "compatible_problems": [
