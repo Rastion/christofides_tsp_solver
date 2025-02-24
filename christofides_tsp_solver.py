@@ -34,7 +34,7 @@ class ChristofidesTSPSolver(BaseOptimizer):
 
         # Step 3: Compute a minimum weight perfect matching for the subgraph induced by odd-degree nodes.
         subgraph = G.subgraph(odd_degree_nodes)
-        matching = nx.algorithms.matching.min_weight_matching(subgraph, maxcardinality=True, weight='weight')
+        matching = nx.algorithms.matching.min_weight_matching(subgraph, weight='weight')
 
         # Step 4: Combine MST and matching edges into a multigraph.
         multigraph = nx.MultiGraph()
