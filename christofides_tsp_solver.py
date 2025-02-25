@@ -76,10 +76,7 @@ class ChristofidesTSPSolver(BaseOptimizer):
         for _, v in circuit_edges:
             if v not in tour:
                 tour.append(v)
-        # Ensure the tour is a closed cycle.
-        if tour[0] != tour[-1]:
-            tour.append(tour[0])
-
+        
         cost = self.compute_cost(tour, dist_matrix)
         return tour, cost
 
